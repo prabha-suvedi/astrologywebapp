@@ -1,9 +1,10 @@
 "use client";
 export const dynamic = 'force-dynamic';
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function AppointmentConfirmation() {
+function AppointmentContent() {
   const searchParams = useSearchParams();
   const appointmentTime = searchParams.get("time");
 
@@ -20,5 +21,13 @@ export default function AppointmentConfirmation() {
         Please be available for your Kundali Matching consultation at the scheduled time.
       </p>
     </div>
+  );
+}
+
+export default function AppointmentConfirmation() {
+  return (
+    <Suspense fallback={<p>Loading appointment details...</p>}>
+      <AppointmentContent />
+    </Suspense>
   );
 }
