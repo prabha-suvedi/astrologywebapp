@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb"; // Use named export instead of default import
 import Zodiac from "@/models/Zodiac";
 import { cache } from "react";
 
@@ -14,7 +14,8 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
-    await connectDB(); // Ensure DB connection
+    // Ensure DB connection using connectDB
+    await connectDB("kundali-matching"); // or pass the appropriate DB name if needed
 
     const zodiacSign = await getZodiacSign(params.sign);
 
