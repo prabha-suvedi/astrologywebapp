@@ -1,15 +1,18 @@
-import clientPromise from "@/lib/mongodb";
 import { compare } from "bcrypt";
+import { connectDB } from "@/lib/mongodb"; // named export
 
 export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
-    // Connect to MongoDB
-    const client = await clientPromise;
-    const db = client.db("mydatabase");  // Replace with your DB name
+    // Connect to MongoDB using connectDB for the "userDB" database.
+    const connection = await connectDB("userDB");
+    
+    // If using mongoose.connect(), the returned connection is a Mongoose connection.
+    // You can check if a native driver is available via connection.db.
+    const db = connection.db ? connection.db() : connection;
 
-    // Check if user exists
+    // Using native driver to query the "users" collection.
     const user = await db.collection("users").findOne({ email });
     if (!user) {
       return new Response(
@@ -18,7 +21,7 @@ export async function POST(request) {
       );
     }
 
-    // Compare password with the stored passwordHash
+    // Compare the provided password with the stored password hash.
     const isMatch = await compare(password, user.passwordHash);
     if (!isMatch) {
       return new Response(
@@ -27,14 +30,13 @@ export async function POST(request) {
       );
     }
 
-    // If we reach here, credentials are valid
-    // You can create a session, JWT, or just return a success message
+    // If we reach here, credentials are valid.
     return new Response(
       JSON.stringify({ message: "Sign in successful!" }),
       { status: 200 }
     );
   } catch (err) {
-    console.error(err);
+    console.error("Signin error:", err);
     return new Response(
       JSON.stringify({ error: "Internal server error." }),
       { status: 500 }
